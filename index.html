@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Cowork Content Stack — Free Setup Guide</title>
+  <meta name="description" content="The exact 4 agents that replaced 6-8 hours of weekly content research. Granola to Notion to LinkedIn, fully automated." />
+  <style>
+    :root {
+      --bg:      #09090b;
+      --surface: #18181b;
+      --border:  #3f3f46;
+      --text:    #fafafa;
+      --text2:   #a1a1aa;
+      --accent:  #5B6FFF;
+      --lime:    #D8EC6A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+
+    /* ── GATE ── */
+    #gate { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; transition: opacity 0.5s ease; }
+    #gate.unlocking { opacity: 0; pointer-events: none; }
+    .gate-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 36px; max-width: 480px; width: 100%; text-align: center; }
+    .gate-badge { display: inline-block; background: rgba(91,111,255,0.15); color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; }
+    .gate-card h2 { font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+    .gate-card h2 span { color: var(--lime); }
+    .gate-card > p { color: var(--text2); font-size: 15px; margin-bottom: 28px; line-height: 1.6; }
+    .gate-bullets { list-style: none; text-align: left; margin-bottom: 28px; }
+    .gate-bullets li { display: flex; gap: 10px; font-size: 14px; color: var(--text2); margin-bottom: 10px; }
+    .gate-bullets li::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--lime); border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+    .gate-form { display: flex; flex-direction: column; gap: 12px; }
+    .gate-form input[type="email"] { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--text); font-size: 15px; width: 100%; outline: none; transition: border-color 0.2s; }
+    .gate-form input[type="email"]:focus { border-color: var(--accent); }
+    .gate-form input[type="email"]::placeholder { color: var(--text2); }
+    .gate-form button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 13px 24px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .gate-form button:hover { opacity: 0.88; }
+    .gate-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #gate-error { color: #f87171; font-size: 13px; margin-top: 6px; display: none; }
+    .gate-fine-print { margin-top: 14px; font-size: 12px; color: var(--text2); }
+
+    /* ── CONTENT ── */
+    #content { display: none; }
+    header { border-bottom: 1px solid var(--border); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 800; font-size: 18px; letter-spacing: -0.03em; }
+    .logo span { color: var(--lime); }
+    .header-cta { background: var(--accent); color: #fff; text-decoration: none; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 600; transition: opacity 0.2s; }
+    .header-cta:hover { opacity: 0.88; }
+    main { max-width: 760px; margin: 0 auto; padding: 56px 24px 80px; }
+    .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 46px); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 20px; }
+    h1 .highlight { color: var(--lime); }
+    .subhead { font-size: 18px; color: var(--text2); max-width: 620px; margin-bottom: 48px; line-height: 1.65; }
+
+    /* Stats bar */
+    .stats { display: flex; gap: 0; margin-bottom: 52px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .stat { flex: 1; padding: 22px 20px; text-align: center; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 26px; font-weight: 800; color: var(--lime); display: block; }
+    .stat-label { font-size: 12px; color: var(--text2); margin-top: 2px; display: block; line-height: 1.4; }
+    @media (max-width: 560px) { .stats { flex-wrap: wrap; } .stat { flex: 1 1 50%; border-bottom: 1px solid var(--border); } }
+
+    /* Callout */
+    .callout { background: rgba(216,236,106,0.06); border: 1px solid rgba(216,236,106,0.25); border-radius: 12px; padding: 22px 26px; margin-bottom: 32px; }
+    .callout p { font-size: 15px; color: var(--text2); line-height: 1.75; }
+    .callout strong { color: var(--lime); }
+
+    /* Section */
+    .section { margin-bottom: 56px; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .section h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .section .intro { color: var(--text2); font-size: 15px; margin-bottom: 28px; line-height: 1.7; }
+
+    /* Before/after */
+    .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+    @media (max-width: 540px) { .before-after { grid-template-columns: 1fr; } }
+    .ba-card { border-radius: 12px; padding: 22px 24px; }
+    .ba-card.before { background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); }
+    .ba-card.after  { background: rgba(216,236,106,0.07); border: 1px solid rgba(216,236,106,0.2); }
+    .ba-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .ba-card.before .ba-label { color: #f87171; }
+    .ba-card.after  .ba-label { color: var(--lime); }
+    .ba-list { list-style: none; }
+    .ba-list li { font-size: 14px; color: var(--text2); margin-bottom: 8px; padding-left: 16px; position: relative; line-height: 1.5; }
+    .ba-card.before .ba-list li::before { content: '×'; position: absolute; left: 0; color: #f87171; font-weight: 700; }
+    .ba-card.after  .ba-list li::before { content: ''; position: absolute; left: 2px; top: 7px; width: 6px; height: 6px; background: var(--lime); border-radius: 50%; }
+
+    /* Agent cards */
+    .agent { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .agent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--lime)); }
+    .agent-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+    .agent-num { background: linear-gradient(135deg, var(--accent), #7c8fff); color: #fff; border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex-shrink: 0; }
+    .agent-meta { flex: 1; }
+    .agent-title { font-size: 18px; font-weight: 800; margin-bottom: 3px; }
+    .agent-timing { font-size: 12px; color: var(--lime); font-weight: 600; }
+    .agent p { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 16px; }
+    .agent-tag { display: inline-block; background: rgba(91,111,255,0.12); color: var(--accent); border: 1px solid rgba(91,111,255,0.2); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; text-transform: uppercase; letter-spacing: 0.04em; margin: 2px 4px 6px 0; }
+    .block-label { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; margin-top: 16px; }
+    .prompt-block { background: #0c0c0e; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 16px 18px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px; color: #c8c8d0; line-height: 1.75; white-space: pre-wrap; }
+
+    /* Pipeline viz */
+    .pipeline { display: flex; align-items: center; gap: 0; margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; flex-wrap: wrap; gap: 8px; }
+    .pipe-step { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .pipe-arrow { color: var(--text2); font-size: 14px; font-weight: 300; padding: 0 4px; }
+    .pipe-step.active { border-color: var(--lime); color: var(--lime); }
+
+    /* Setup steps */
+    .setup-steps { display: flex; flex-direction: column; gap: 10px; }
+    .setup-step { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; align-items: flex-start; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; background: rgba(91,111,255,0.15); border: 1px solid rgba(91,111,255,0.3); color: var(--accent); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .step-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .step-body p { font-size: 13px; color: var(--text2); line-height: 1.55; }
+
+    /* ROI */
+    .roi-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    @media (max-width: 540px) { .roi-strip { grid-template-columns: 1fr; } }
+    .roi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+    .roi-card .r-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .roi-card .r-val { font-size: 22px; font-weight: 800; }
+    .roi-card .r-val.red   { color: #f87171; }
+    .roi-card .r-val.green { color: var(--lime); }
+
+    /* CTA */
+    .cta-section { background: linear-gradient(135deg, rgba(91,111,255,0.12), rgba(216,236,106,0.07)); border: 1px solid rgba(91,111,255,0.25); border-radius: 16px; padding: 48px 40px; text-align: center; }
+    .cta-section h2 { font-size: 26px; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+    .cta-section p { color: var(--text2); font-size: 16px; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.65; }
+    .cta-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 10px; padding: 15px 30px; font-size: 16px; font-weight: 700; transition: opacity 0.2s, transform 0.15s; }
+    .cta-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* Float CTA */
+    #float-cta { position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 100px; padding: 13px 24px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 32px rgba(91,111,255,0.4); opacity: 0; transform: translateY(12px); transition: opacity 0.3s, transform 0.3s; z-index: 50; }
+    #float-cta.visible { opacity: 1; transform: translateY(0); }
+    #float-cta:hover { opacity: 0.9; }
+
+    footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; font-size: 13px; color: var(--text2); }
+    footer a { color: var(--text2); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── GATE ── -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-badge">Free Setup Guide</div>
+    <h2>90% of Your Content Workflow,<br><span>Fully Automated</span></h2>
+    <p>I used to spend a full day planning content. Now it takes 50 minutes. Here are the exact 4 agents I built in Claude Cowork that made that happen, with every prompt included.</p>
+    <ul class="gate-bullets">
+      <li>The exact 4 agents, step by step, no code required</li>
+      <li>The Granola to Notion to LinkedIn pipeline that drafts posts automatically</li>
+      <li>The Monday morning research workflow that runs while you sleep</li>
+      <li>Every prompt you need to replicate this in under an hour</li>
+      <li>What else I use Cowork for that has nothing to do with content</li>
+    </ul>
+    <div class="gate-form">
+      <input type="email" id="gate-email" placeholder="your@email.com" required />
+      <button type="button" id="gate-btn">Get the Free Setup Guide</button>
+      <span id="gate-error">Something went wrong, please try again.</span>
+    </div>
+    <p class="gate-fine-print">No spam. Unsubscribe anytime. By entering your email you're joining Alec's newsletter.</p>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div id="content">
+  <header>
+    <div class="logo">Rally<span>Up</span></div>
+    <a href="https://calendar.app.google/SDA5TMRMbqbPQWEn7" target="_blank" class="header-cta">Book a Demo</a>
+  </header>
+
+  <main>
+    <p class="eyebrow">The Cowork Content Stack</p>
+    <h1>From a Full Day<br>to <span class="highlight">50 Minutes.</span></h1>
+    <p class="subhead">I built 4 agents in Claude Cowork that now handle 90% of my weekly content workflow automatically. Every Monday, they run without me touching anything. Here's the exact setup.</p>
+
+    <div class="stats">
+      <div class="stat"><span class="stat-num">50 min</span><span class="stat-label">total weekly content time</span></div>
+      <div class="stat"><span class="stat-num">6-8 hrs</span><span class="stat-label">replaced every week</span></div>
+      <div class="stat"><span class="stat-num">$2,500</span><span class="stat-label">strategist never hired</span></div>
+      <div class="stat"><span class="stat-num">4</span><span class="stat-label">agents running on autopilot</span></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>What actually changed:</strong> it wasn't the tools. It was realising that content planning is almost entirely a research and pattern-matching problem, and AI agents are extremely good at both. Once I stopped treating it as a creative task and started treating it as a system, building the automation became obvious.</p>
+    </div>
+
+    <!-- BEFORE / AFTER -->
+    <div class="section">
+      <div class="section-label">The transformation</div>
+      <h2>What Monday Morning Used to Look Like</h2>
+      <p class="intro">Before I built this stack, content planning was a recurring tax on my week. Two hours minimum, every single week, just to figure out what to write about. Here's the honest before and after.</p>
+
+      <div class="before-after">
+        <div class="ba-card before">
+          <div class="ba-label">Before Cowork</div>
+          <ul class="ba-list">
+            <li>2 hours of Monday morning research, every week without exception</li>
+            <li>"What should I even post about?" paralysis</li>
+            <li>A content strategist I was about to hire at $2,500/month</li>
+            <li>Showing up to the week with nothing ready</li>
+            <li>Manually scanning Twitter, newsletters, and old notes for ideas</li>
+            <li>Writing hooks cold, from scratch, every time</li>
+          </ul>
+        </div>
+        <div class="ba-card after">
+          <div class="ba-label">After Cowork</div>
+          <ul class="ba-list">
+            <li>50 minutes total: 45 reviewing what the agents drafted, 5 picking and scheduling</li>
+            <li>5 story candidates pulled from my actual week, automatically</li>
+            <li>Trend brief already in Notion before I open my laptop Monday</li>
+            <li>Hooks written in my voice, ready to refine not create</li>
+            <li>Content calendar populated with suggested posting dates</li>
+            <li>Zero paralysis. I arrive at Monday with a menu, not a blank page.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIPELINE VIZ -->
+    <div class="section">
+      <div class="section-label">The architecture</div>
+      <h2>The Full Pipeline</h2>
+      <p class="intro">Four agents, one pipeline, runs every Monday. Here's how the pieces connect before diving into each one.</p>
+      <div class="pipeline">
+        <div class="pipe-step active">Granola Notes</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step active">Agent 1: Story Scanner</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step active">Agent 2: Trend Researcher</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step active">Agent 3: Hook Drafter</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step active">Agent 4: Calendar Builder</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">Notion + LinkedIn</div>
+      </div>
+    </div>
+
+    <!-- THE 4 AGENTS -->
+    <div class="section">
+      <div class="section-label">The 4 agents</div>
+      <h2>Every Agent, Every Prompt</h2>
+      <p class="intro">Each agent has one job. The prompts below are the exact ones running in my Cowork setup. Copy them directly, swap in your tools and topics, and you're done.</p>
+
+      <!-- Agent 1 -->
+      <div class="agent">
+        <div class="agent-header">
+          <div class="agent-num">1</div>
+          <div class="agent-meta">
+            <div class="agent-title">The Story Scanner</div>
+            <div class="agent-timing">Runs Monday at 7am, reads last 7 days of meeting notes</div>
+          </div>
+        </div>
+        <p>Scans all your Granola meeting notes from the past week and extracts build-in-public story candidates. Not summaries of what happened. Actual post ideas framed as stories, with the hook angle already identified.</p>
+        <p>The output is a list of 5 candidates ranked by "would someone outside the company care about this?" The agents don't ask you to decide what's interesting. They've already filtered for that.</p>
+        <div class="agent-tag">granola</div>
+        <div class="agent-tag">notion</div>
+        <div class="block-label">Exact prompt</div>
+        <div class="prompt-block">Read all my Granola meeting notes from the past 7 days. For each meeting, identify any moment that could become a build-in-public LinkedIn post: a decision we made and why, something we learned the hard way, a counterintuitive result, a milestone, or a problem we solved in an unexpected way.
+
+Output a numbered list of 5 story candidates. For each one: (1) the core event in one sentence, (2) why an outsider would find it interesting, (3) a suggested hook opener (first line of the post). Rank them from most to least compelling. Save this list to a new Notion page titled "Content Candidates — [this week's date]".</div>
+      </div>
+
+      <!-- Agent 2 -->
+      <div class="agent">
+        <div class="agent-header">
+          <div class="agent-num">2</div>
+          <div class="agent-meta">
+            <div class="agent-title">The Trend Researcher</div>
+            <div class="agent-timing">Runs after Agent 1, drops a brief in Notion</div>
+          </div>
+        </div>
+        <p>Researches what's trending in your specific content categories and delivers a structured brief with angles, data points, and what the conversation is missing. You stop showing up to trending topics with nothing to add.</p>
+        <p>The key is telling it exactly which topics matter to you. Generic "trending in AI" research is noise. Research scoped to your actual content pillars is signal.</p>
+        <div class="agent-tag">web search</div>
+        <div class="agent-tag">notion</div>
+        <div class="block-label">Exact prompt</div>
+        <div class="prompt-block">Research what's trending this week across these three topics: (1) AI tools and automation for founders and operators, (2) employee advocacy and LinkedIn content strategy, (3) build-in-public founder content.
+
+For each topic: find 2-3 posts or articles getting significant engagement this week, identify the angle that's getting traction, note what's being left out of the conversation (the gap I could fill), and suggest one specific post idea that adds something new rather than repeating what's already been said.
+
+Format as a weekly trend brief and save it to Notion, titled "Trend Brief — [this week's date]". Keep it scannable. I'll read it in 5 minutes.</div>
+      </div>
+
+      <!-- Agent 3 -->
+      <div class="agent">
+        <div class="agent-header">
+          <div class="agent-num">3</div>
+          <div class="agent-meta">
+            <div class="agent-title">The Hook Drafter</div>
+            <div class="agent-timing">Reads Agents 1 and 2 output, writes 5 full drafts</div>
+          </div>
+        </div>
+        <p>Takes the story candidates and the trend brief and writes complete post drafts in your voice. Not just hooks. Full posts, ready to pick and refine. The difference between this and generic AI content is that it's working from your actual material, not from thin air.</p>
+        <p>The voice instructions are the most important part of this prompt. Spend time on them once, and the output quality improves dramatically across every post it writes.</p>
+        <div class="agent-tag">notion</div>
+        <div class="block-label">Exact prompt</div>
+        <div class="prompt-block">Read the Content Candidates and Trend Brief pages I saved to Notion this week. Pick the 3 strongest post opportunities, combining my personal stories with the trending angles where they fit naturally.
+
+Write a complete first-draft LinkedIn post for each one. Voice instructions: first person, direct and conversational, no corporate language, lead with something surprising or counterintuitive, short punchy lines, end with a question or a reframe that invites a reply. Under 250 words per post. No em dashes.
+
+Save all 3 drafts to a single Notion page titled "Post Drafts — [this week's date]". Label each draft clearly so I can pick one and move it to scheduled.</div>
+      </div>
+
+      <!-- Agent 4 -->
+      <div class="agent">
+        <div class="agent-header">
+          <div class="agent-num">4</div>
+          <div class="agent-meta">
+            <div class="agent-title">The Calendar Builder</div>
+            <div class="agent-timing">Populates your content calendar automatically</div>
+          </div>
+        </div>
+        <p>Takes the approved drafts and populates your content calendar in Notion with suggested posting dates based on topic mix, cadence, and what performed well previously. You don't schedule anything manually.</p>
+        <p>This is the last step in the chain and the one that makes the whole system feel real. When you open Monday with a populated calendar rather than a blank one, the whole relationship with content shifts.</p>
+        <div class="agent-tag">notion</div>
+        <div class="block-label">Exact prompt</div>
+        <div class="prompt-block">Read my Post Drafts page for this week in Notion. I have [X] posts ready. Add each one to my Notion content calendar database with: post draft (full text), suggested publish date (spread across the week, Tuesday through Friday, skip Monday), status set to "Ready to Schedule", and a one-line note on why you chose that date for that post (e.g. "trending topic, catch early week momentum").
+
+If there are fewer than 3 posts, flag which gaps exist and suggest what type of content would round out the week based on what I've posted in the last 30 days.</div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="section">
+      <div class="section-label">Getting started</div>
+      <h2>How to Set This Up in Under an Hour</h2>
+      <p class="intro">This is not a complex system. It took me longer than an hour the first time because I was figuring it out. You have the playbook. Here's the exact sequence.</p>
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-dot">1</div>
+          <div class="step-body">
+            <h4>Connect Granola and Notion to Cowork</h4>
+            <p>In Claude Desktop, open Settings and connect Granola and Notion as MCP tools. Test each connection with a simple read prompt before moving on. Do not skip the test step.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-dot">2</div>
+          <div class="step-body">
+            <h4>Create your Notion content infrastructure</h4>
+            <p>You need three pages: a "Weekly Content" folder, a content calendar database (Name, Post Draft, Publish Date, Status), and somewhere for the agents to save their weekly output. Keep it simple.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-dot">3</div>
+          <div class="step-body">
+            <h4>Run Agent 1 first, manually, to calibrate</h4>
+            <p>Before automating anything, run the Story Scanner prompt by hand on one week of Granola notes. Read the output. If the story candidates feel off, adjust the voice in the prompt. This calibration pass saves you from automating bad output.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-dot">4</div>
+          <div class="step-body">
+            <h4>Run all 4 agents in sequence and review the chain</h4>
+            <p>Run each agent once manually, in order, to verify the handoff works. Agent 2 reads nothing from Agent 1, so it can run in parallel. Agents 3 and 4 depend on what came before, so run those in sequence.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-dot">5</div>
+          <div class="step-body">
+            <h4>Automate the Monday trigger</h4>
+            <p>Set up a recurring Claude Cowork task to run Agents 1 and 2 every Monday at 7am. Agents 3 and 4 can run when you're ready to review, or you can chain them to fire automatically after Agent 2 completes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BONUS: WHAT ELSE COWORK DOES -->
+    <div class="section">
+      <div class="section-label">Bonus section</div>
+      <h2>What Else I Use Cowork For</h2>
+      <p class="intro">The post only mentioned content. Here's a quick look at the other places Cowork is running in my week, since the setup carries over to all of them.</p>
+      <div class="before-after" style="grid-template-columns: 1fr; gap: 10px;">
+        <div class="ba-card after" style="grid-column: 1;">
+          <div class="ba-label" style="margin-bottom: 14px;">Other active automations</div>
+          <ul class="ba-list">
+            <li><strong style="color:var(--text)">Investor meeting prep:</strong> pulls Granola notes, email threads, and calendar details into a briefing doc in 5 minutes</li>
+            <li><strong style="color:var(--text)">Proposal generation:</strong> turns client call transcripts into formatted Statements of Work automatically</li>
+            <li><strong style="color:var(--text)">Gmail triage:</strong> reads my inbox, filters out anything that doesn't need a response, drafts replies for everything that does</li>
+            <li><strong style="color:var(--text)">Transaction monitoring:</strong> scans Mercury transactions weekly and flags anything unusual before I see it</li>
+            <li><strong style="color:var(--text)">Weekly review:</strong> pulls Slack, Calendar, and Notion to generate a "what happened this week" summary every Friday at 5pm</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROI -->
+    <div class="section">
+      <div class="section-label">The math</div>
+      <h2>Why the ROI Is Absurd</h2>
+      <div class="roi-strip">
+        <div class="roi-card"><div class="r-label">Hours replaced per week</div><div class="r-val green">6-8 hrs</div></div>
+        <div class="roi-card"><div class="r-label">Monthly cost of Cowork</div><div class="r-val green">$20/mo</div></div>
+        <div class="roi-card"><div class="r-label">Content strategist I didn't hire</div><div class="r-val red">$2,500/mo</div></div>
+      </div>
+      <div class="callout" style="margin-bottom: 0;">
+        <p>At a conservative $100/hour valuation of your time, 6 saved hours per week is $2,400/month in recovered capacity. The tool costs $20. The only question is why you'd wait.</p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <h2>Your Team Should Be on LinkedIn.<br>RallyUp Makes It Automatic.</h2>
+      <p>RallyUp gets your whole team posting on LinkedIn consistently, in their own voice, without anyone opening a blank doc. One platform. Your entire company building pipeline from content.</p>
+      <a href="https://calendar.app.google/SDA5TMRMbqbPQWEn7" target="_blank" class="cta-btn">Book a Free Call with Alec →</a>
+    </div>
+  </main>
+
+  <footer><p>Built by <a href="https://rallyup.team" target="_blank">RallyUp</a></p></footer>
+</div>
+
+<a href="https://calendar.app.google/SDA5TMRMbqbPQWEn7" target="_blank" id="float-cta">Book a Free Call</a>
+
+<script>
+  const LS_KEY  = 'rallyup_lm_content_stack';
+  const gate    = document.getElementById('gate');
+  const content = document.getElementById('content');
+
+  function unlock() {
+    gate.classList.add('unlocking');
+    setTimeout(() => { gate.style.display = 'none'; content.style.display = 'block'; }, 500);
+  }
+
+  if (localStorage.getItem(LS_KEY)) { gate.style.display = 'none'; content.style.display = 'block'; }
+
+  const btn   = document.getElementById('gate-btn');
+  const input = document.getElementById('gate-email');
+  const err   = document.getElementById('gate-error');
+
+  btn.addEventListener('click', async function() {
+    const email = input.value.trim();
+    if (!email || !email.includes('@')) {
+      err.textContent = 'Please enter a valid email address.';
+      err.style.display = 'block';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Unlocking...';
+    err.style.display = 'none';
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (res.ok) { localStorage.setItem(LS_KEY, '1'); unlock(); }
+      else { const data = await res.json().catch(() => ({})); throw new Error(data.error || 'Subscribe failed'); }
+    } catch(ex) {
+      console.warn('Subscribe error:', ex);
+      err.textContent = 'Something went wrong, please try again.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Get the Free Setup Guide';
+    }
+  });
+
+  const floatBtn = document.getElementById('float-cta');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    if (scrolled > 0.45) floatBtn.classList.add('visible');
+    else floatBtn.classList.remove('visible');
+  });
+</script>
+</body>
+</html>
